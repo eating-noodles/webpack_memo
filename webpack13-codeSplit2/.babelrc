@@ -1,0 +1,11 @@
+{
+    // note: 业务代码的配置
+    "presets": [
+        ["@babel/preset-env", {
+            "targets": {
+                "chrome": "67"
+            },
+            "useBuiltIns": "usage"
+        }]
+    ]
+}
