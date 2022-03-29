@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        // note: 编译后文件的输出目录
+        "outDir": "./dist",
+        // note: ts文件中模块的导入规则
+        "module": "es6",
+        // note: 将ts编译成符合es5语法的代码
+        "target": "es5",
+        // note: 允许在ts文件中引用js文件
+        "allowJs": true
+    }
+}
