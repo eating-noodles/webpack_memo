@@ -32,6 +32,52 @@ const moduleAnalyser = (filename) => {
         code
     }
 }
+// const moduleInfo = moduleAnalyser('./src/index.js')
+// console.log(moduleInfo)
 
-const moduleInfo = moduleAnalyser('./src/index.js')
-console.log(moduleInfo)
+const makeDependenciesGraph = (entry) => {
+    const entryModule = moduleAnalyser(entry)
+    const graphArr = [entryModule]
+    for (let i = 0; i < graphArr.length; i++) {
+        const item = graphArr[i]
+        const { dependencies } = item
+        if (dependencies) {
+            for (let j in dependencies) {
+                graphArr.push(moduleAnalyser(dependencies[j]))
+            }
+        }
+    }
+    const graph = {};
+    graphArr.forEach(item => {
+        graph[item.filename] = {
+            dependencies: item.dependencies,
+            code: item.code
+        }
+    })
+    return graph
+}
+// const graphInfo = makeDependenciesGraph('./src/index.js')
+// console.log(graphInfo)
+
+const generateCode = (entry) => {
+    const graph = JSON.stringify(makeDependenciesGraph(entry));
+    // note: 为了不污染环境，使用闭包
+    return `
+        (function(graph){
+            function require(module) {
+                function localRequire(relativePath) {
+                    return require(graph[module].dependencies[relativePath]);
+                }
+                var exports = {};
+                (function(require, exports, code) {
+                    eval(code);
+                })(localRequire, exports, graph[module].code)
+                return exports;
+            };
+            require('${entry}')
+        })(${graph});
+    `
+}
+
+const code = generateCode('./src/index.js')
+console.log(code)
